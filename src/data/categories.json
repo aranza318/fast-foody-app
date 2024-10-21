@@ -1,0 +1,37 @@
+[
+    {
+        "id":1,
+        "title":"Hamburguesas",
+        "image":"https://i.postimg.cc/668xzMdL/hamburger.png"
+    },
+    {
+        "id":2,
+        "title":"Panchos",
+        "image":"https://i.postimg.cc/XjxzR9VH/1hotdog.png"
+    },
+    {
+        "id":3,
+        "title":"Papas fritas",
+        "image":"https://i.postimg.cc/05hR47ng/fries.png"
+    },
+    {
+        "id":4,
+        "title":"Sandwichs",
+        "image":"https://i.postimg.cc/tTffLHhd/sandwich.png"
+    },
+    {
+        "id":5,
+        "title":"Lomos",
+        "image":"https://i.postimg.cc/0QrFWNJ2/lomo.png"
+    },
+    {
+        "id":6,
+        "title":"Empanadas",
+        "image":"https://i.postimg.cc/0jTfCk73/empanadas.png"
+    },
+    {
+        "id":7,
+        "title":"Bebidas",
+        "image":"https://i.postimg.cc/KYGdTfGT/limonada.png"
+    }
+]
