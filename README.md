@@ -90,4 +90,4 @@ Objetivo principal del proyecto: busca demostrar cómo combinar herramientas mod
 ## Contacto  
 Si tienes preguntas o sugerencias, no dudes en contactarme:  
 📧 Email: agalvaliz318@gmail.com  
-🐙 GitHub: [TuGitHub](https://github.com/aranza318)  
+🐙 GitHub: [MiGitHub](https://github.com/aranza318)  
