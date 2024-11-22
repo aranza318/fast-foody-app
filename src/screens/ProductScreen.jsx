@@ -1,56 +1,139 @@
-import { StyleSheet, Text, View, Pressable, FlatList, useWindowDimensions, Image, ScrollView } from 'react-native'
-import Icon from 'react-native-vector-icons/MaterialIcons'
-import { colors } from '../global/colors'
-import { useEffect, useState } from 'react'
-import products from '../data/products.json'
-import { LinearGradient } from 'expo-linear-gradient'
-import MyTypoText from '../components/MyTypoText'
+import { StyleSheet, View, Pressable, useWindowDimensions, Image, ScrollView, ActivityIndicator, Alert} from "react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { colors } from "../global/colors";
+import { LinearGradient } from "expo-linear-gradient";
+import MyTypoText from "../components/MyTypoText";
+import { useSelector, useDispatch } from "react-redux";
+import { addItem } from "../features/cart/cartSlice";
+import { useGetProductQuery } from "../services/shopService";
+import { clearUser } from '../features/auth/authSlice';
+import { clearSessions } from '../db';
+import Toast from "react-native-toast-message";
+import ShowToast from "../components/ShowToast";
 
-const ProductScreen = ({route, navigation}) => {
-    const [productFound, setProductFound]=useState({})
-    const productId = route.params
-    const { width, height } = useWindowDimensions()
-    useEffect(()=>{
-        setProductFound(products.find(product=>product.id===productId))
-    }, [productId])
-    return (
-      <LinearGradient style={styles.try} colors={["#00cbf9","#090979"]} start={{x:0, y:0}} end={{x:1, y:1}}>
-    <ScrollView style={styles.productContainer}>
-      <Pressable onPress={()=>navigation.goBack()}><Icon style={styles.goBack} name="arrow-back" color={colors.pink} size={24}/></Pressable>  
-      <MyTypoText style={styles.textBrand}>{productFound.brand}</MyTypoText>
-      <MyTypoText style={styles.textTitle}>{productFound.title}</MyTypoText>
-      <Image 
-         source = {{uri: productFound.mainImage}}
-         alt = {productFound.title}
-         width = '100%'
-         height = {width * .7}
-         resizeMode = 'contain'
-      />
-      <MyTypoText style={styles.longDescription}>{productFound.longDescription}</MyTypoText>
-      <View style={styles.tagsContainer}>
-        <View style={styles.tags}>
-        <MyTypoText style={styles.tagText}>Tags : </MyTypoText>
-        {
-         productFound.tags?.map(tag => <MyTypoText key={Math.random()} style={styles.tagText}>{tag}</MyTypoText>) 
-        }
-        </View>
-        {
-          productFound.discount > 0 && <View style={styles.discount}><MyTypoText style={styles.discountText}>🔥- {productFound.discount} %🔥</MyTypoText></View>
-        }
-      </View>
-      {
-        productFound.stock <= 0 && <MyTypoText style={styles.nonStockText}>Sin Stock</MyTypoText>
-      }
-      <MyTypoText style={styles.price1}>Precio: $ {productFound.price}</MyTypoText>
-      <Pressable style={({pressed})=>[{opacity:pressed ? 0.95 : 1}, styles.addToCartButton]} onPress={null}>
-      <MyTypoText style={styles.textAddToCart}> Agregar a mi pedido </MyTypoText>
-      </Pressable>
-    </ScrollView>
+const ProductScreen = ({ navigation }) => {
+  const productId = useSelector((state) => state.shopSlice.value.productId);
+  const userEmail = useSelector((state) => state.authSlice.value.email); // Obtener el email del usuario
+  const { width, height } = useWindowDimensions();
+
+  const { data: productFound, error, isLoading } = useGetProductQuery(productId);
+  const dispatch = useDispatch();
+  const onLogout = () => {
+    dispatch(clearUser());
+    clearSessions()
+    .then(() => {
+      ShowToast("success", "Cerraste sesión");
+    })
+    .catch((error) => {
+      ShowToast("error", "Error al eliminar la sesión", error.message || "No se pudo eliminar la sesión.");
+    });
+  };
+  const handleAddToCart = () => {
+    if (userEmail === "demo@fastfoody.com") {
+      // Si el usuario es invitado, redirigir al login
+      Alert.alert(
+        "Registro requerido",
+        "Debes registrarte para agregar productos a tu pedido.",
+        [
+          {
+            text: "Ir al inicio",
+            onPress: () => {onLogout()}, // Ajusta según tu configuración
+          },
+          {
+            text: "Cancelar",
+            style: "cancel",
+          },
+        ]
+      );
+      return;
+    }
+
+    // Lógica para calcular precio y agregar al carrito
+    const hasDiscount = productFound.discount && productFound.discount > 0;
+    const finalPrice = hasDiscount
+      ? productFound.price - productFound.price * (productFound.discount / 100)
+      : productFound.price;
+
+    dispatch(
+      addItem({
+        ...productFound,
+        price: finalPrice,
+        quantity: 1,
+      })
+    );
+
+    Alert.alert("Producto agregado", "El producto se ha añadido a tu pedido", [
+      { text: "OK" },
+    ]);
+  };
+
+  return (
+    <LinearGradient style={styles.try} colors={["#00cbf9", "#090979"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+      {isLoading ? (
+        <ActivityIndicator size="large" color={colors.white} />
+      ) : error ? (
+        <MyTypoText>Error al cargar</MyTypoText>
+      ) : (
+        <ScrollView style={styles.productContainer}>
+          <Pressable onPress={() => navigation.goBack()}>
+            <Icon style={styles.goBack} name="arrow-back" color={colors.pink} size={24} />
+          </Pressable>
+          <MyTypoText style={styles.textBrand}>{productFound.brand}</MyTypoText>
+          <MyTypoText style={styles.textTitle}>
+            {productFound.title}
+          </MyTypoText>
+          <Image
+            source={{ uri: productFound.mainImage }}
+            alt={productFound.title}
+            width="100%"
+            height={width * 0.7}
+            resizeMode="contain"
+          />
+          <MyTypoText style={styles.longDescription}>
+            {productFound.longDescription}
+          </MyTypoText>
+          <View style={styles.tagsContainer}>
+            <View style={styles.tags}>
+              <MyTypoText style={styles.tagText}>Tags : </MyTypoText>
+              {productFound.tags?.map((tag) => (
+                <MyTypoText key={Math.random()} style={styles.tagText}>
+                  {tag}
+                </MyTypoText>
+              ))}
+            </View>
+            {productFound.discount > 0 && (
+              <View style={styles.discount}>
+                <MyTypoText style={styles.discountText}>
+                  🔥- {productFound.discount} %🔥
+                </MyTypoText>
+              </View>
+            )}
+          </View>
+          {productFound.stock <= 0 && (
+            <MyTypoText style={styles.nonStockText}>Sin Stock</MyTypoText>
+          )}
+          <MyTypoText style={styles.price1}>
+            Precio: $ {productFound.price}
+          </MyTypoText>
+          <Pressable
+            style={({ pressed }) => [
+              { opacity: pressed ? 0.95 : 1 },
+              styles.addToCartButton,
+            ]}
+            onPress={handleAddToCart}
+          >
+            <MyTypoText style={styles.textAddToCart}>
+              Agregar a mi pedido
+            </MyTypoText>
+          </Pressable>
+        </ScrollView>
+      )}
     </LinearGradient>
-  )
-}
+  );
+};
 
-export default ProductScreen
+export default ProductScreen;
+
 
 const styles = StyleSheet.create({
     goBack:{
@@ -132,5 +215,8 @@ const styles = StyleSheet.create({
       color:colors.white,
       fontSize:24,
       textAlign:'center'
+    },
+    try:{
+      height: 605,
     }
 })

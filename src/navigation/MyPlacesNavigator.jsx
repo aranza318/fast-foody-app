@@ -1,20 +1,19 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack' 
-import ReceiptsScreen from '../screens/ReceiptsScreen'
+import MyPlacesScreens from '../screens/MyPlacesScreens';
 import Headers from '../components/Headers'
 
 const Stack = createNativeStackNavigator();
 
-const ReceiptsNavigator = () => {
+const MyPlacesNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
         header: ({route}) => <Headers subtitle={route.name}/>
       }}
     >
-       <Stack.Screen component={ReceiptsScreen} name="Recibos" />
+       <Stack.Screen component={MyPlacesScreens} name="Mi ubicacion" />
     </Stack.Navigator>   
   )
 }
 
-export default ReceiptsNavigator
-
+export default MyPlacesNavigator

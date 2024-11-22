@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import CartScreen from "../screens/CartScreen";
-import Header from "../components/Header";
+import Headers from "../components/Headers";
 
 const CartStack = createNativeStackNavigator();
 
@@ -8,7 +8,7 @@ const CartNavigator = () => {
   return (
     <CartStack.Navigator
       screenOptions={{
-        header: ({ route }) => <Header subtitle={route.name} />,
+        header: ({ route }) => <Headers subtitle={route.name} />,
       }}
     >
       <CartStack.Screen component={CartScreen} name="Carrito" />

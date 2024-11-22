@@ -1,30 +1,40 @@
 import {useEffect, useState} from 'react'
-import { FlatList, StyleSheet, Text, View, Image, Pressable } from 'react-native'
-import products from "../data/products.json"
+import { FlatList, StyleSheet, Text, View, Image, Pressable, ActivityIndicator } from 'react-native'
 import FlatCard from '../components/FlatCard'
 import { colors } from '../global/colors'
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Search from '../components/Search'
 import { LinearGradient } from 'expo-linear-gradient'
 import MyTypoText from '../components/MyTypoText'
+import { useSelector, useDispatch } from 'react-redux'
+import { setProductId } from '../features/shop/shopSlice'
+import { useGetProductsByCategoryQuery } from '../services/shopService';
 
 const ProductsSceens = ({navigation, route}) => {
   const [productsFiltered, setProductsFiltered]=useState([])
   const [searchTitle, setSearchTitle]= useState("")
-  const category = route.params
+  const category = useSelector(state => state.shopSlice.value.categorySelected)
+
+
+  const {data: productsFilteredByCategory, error, isLoading} = useGetProductsByCategoryQuery(category)
+  
+  const dispatch = useDispatch()
+
   useEffect(()=>{
-    const productsTempFiltered = products.filter(product=>product.category.toLowerCase() === category.toLowerCase())
-    setProductsFiltered(productsTempFiltered)
+    setProductsFiltered(productsFilteredByCategory)
     if(searchTitle){
-      const productsSearched = productsFiltered.filter(product=>product.title.toLowerCase().includes(searchTitle.toLowerCase()))
-      setProductsFiltered(productsSearched)
+      setProductsFiltered(productsFilteredByCategory.filter(product=>product.title.toLowerCase().includes(searchTitle.toLowerCase())))
     }
-  },[category, searchTitle])
+  },[searchTitle, productsFilteredByCategory])
 
   const renderProductsItem = ({item}) =>{
     return(
       
-      <Pressable onPress={()=>navigation.navigate("Producto",item.id)}>
+      <Pressable onPress={
+        ()=> {
+          dispatch(setProductId(item.id))
+          navigation.navigate("Producto")
+      }}>
       <FlatCard style={styles.productsContainer}>
         <View>
           <Image
@@ -61,13 +71,28 @@ const ProductsSceens = ({navigation, route}) => {
   }
   return (
     <LinearGradient style={styles.try} colors={["#00cbf9","#090979"]} start={{x:0, y:0}} end={{x:1, y:1}}>
-    <Pressable onPress={()=>navigation.goBack()}><Icon style={styles.goBack} name="arrow-back" color={colors.pink} size={24} /></Pressable>
-    <Search setSearchTitle={setSearchTitle}/>
-    <FlatList
-      data={productsFiltered}
-      keyExtractor={item => item.id}
-      renderItem={renderProductsItem}
-    />
+    {
+                isLoading
+                    ?
+                    <ActivityIndicator size="large" color={colors.white} />
+                    :
+                    error
+                        ?
+                        <Text>Error al cargar</Text>
+                        :
+                        <LinearGradient style={styles.try} colors={["#00cbf9","#090979"]} start={{x:0, y:0}} end={{x:1, y:1}}>
+                        <View style= {styles.flat}>  
+                            <Pressable onPress={() => navigation.goBack()}><Icon style={styles.goBack} name="arrow-back" size={24} /></Pressable>
+                            <Search setSearchTitle={setSearchTitle} />
+                              <FlatList
+                                data={productsFiltered}
+                                keyExtractor={item => item.id}
+                                renderItem={renderProductsItem}     
+                            />
+                            
+                        </View>
+                        </LinearGradient>
+            }
     </LinearGradient>
   )
 }
@@ -78,8 +103,11 @@ const styles = StyleSheet.create({
   productsContainer:{
     flexDirection:'row',
     padding:20,
+    paddingBottom:39,
+    paddingEnd: 2,
     justifyContent:"flex-start",
     margin: 10,
+    marginBottom: 8,
     alignItems: "center",
     gap: 10
   },
@@ -134,5 +162,11 @@ const styles = StyleSheet.create({
   goBack:{
     padding:10,
     color: colors.pink
+  },
+  flat:{
+    height: 605,
+  },
+  try:{
+    height: 605,
   }
 })

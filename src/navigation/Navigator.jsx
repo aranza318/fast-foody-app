@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { LinearGradient } from "expo-linear-gradient";
-import {CategoriesScreens, ProductScreen, ProductsSceens} from '../screens'
-import Header from "../components/Header"
+
+import {CategoriesScreens, ProductScreen, ProductsSceens, SingupScreen} from '../screens'
+import Headers from "../components/Headers"
 
 const Stack = createNativeStackNavigator()
 
@@ -10,11 +10,12 @@ const Navigator = () => {
     
         <Stack.Navigator 
             screenOptions={{
-                header: ({route})=> <Header subtitle={route.name}/>
+                header: ({route})=> <Headers subtitle={route.name}/>
             }}>
             <Stack.Screen name= "Categorias" component={CategoriesScreens} />
             <Stack.Screen name= "Productos" component={ProductsSceens} />
             <Stack.Screen name= "Producto" component={ProductScreen} />
+            <Stack.Screen name= "Redireccion" component={SingupScreen} />
         </Stack.Navigator>
     
   )
