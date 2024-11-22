@@ -10,7 +10,7 @@ Objetivo principal del proyecto: busca demostrar cómo combinar herramientas mod
 
 ## Presentación de los Alcances del Proyecto
 
-- Autenticación el registro e inicio de sesión seguro mediante Firebase.
+- Autenticación para el registro e inicio de sesión seguro mediante Firebase.
 - Surtir los productos en listas por categoría y opciones para agregar al carrito de compras.
 - Dejar claro para el usuario su compra mediante la generación y almacenamiento de recibos por usuario.
 - Facilitar una función de geolocalización para que el cliente pueda mostrar donde se encuentra y así agregar esta dirección en su orden si desea delivery.
