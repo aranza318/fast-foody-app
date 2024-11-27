@@ -7,6 +7,9 @@
 Objetivo principal del proyecto: busca demostrar cómo combinar herramientas modernas como Redux, Firebase, y Expo para crear una solución completa y funcional.
 
 ---
+## Demo  
+Mira el video demostrativo del proyecto [aquí](https://www.youtube.com/watch?v=hvogYvKGWZE).  
+---
 
 ## Presentación de los Alcances del Proyecto
 
